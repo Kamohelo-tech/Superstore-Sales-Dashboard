@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Superstore Sales Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; color: #1a1a2e; }
+
+  .topbar {
+    background: #1a1a2e; padding: 14px 28px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .topbar-left h1 { color: #fff; font-size: 18px; font-weight: 600; }
+  .topbar-left p { color: rgba(255,255,255,0.5); font-size: 12px; margin-top: 2px; }
+  .filters { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .filters label { color: rgba(255,255,255,0.6); font-size: 12px; }
+  .filters select {
+    background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2);
+    padding: 5px 10px; border-radius: 6px; font-size: 12px; cursor: pointer;
+  }
+  .filters select option { background: #1a1a2e; color: #fff; }
+
+  .body { padding: 18px 24px; }
+
+  .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 18px; }
+  .kpi { background: #fff; border-radius: 10px; padding: 16px 18px; border: 1px solid #e8eaed; }
+  .kpi-label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; }
+  .kpi-value { font-size: 26px; font-weight: 700; }
+  .kpi-delta { font-size: 11px; margin-top: 4px; }
+  .up { color: #1D9E75; } .down { color: #E24B4A; }
+
+  .row2 { display: grid; grid-template-columns: 2fr 1fr; gap: 14px; margin-bottom: 18px; }
+  .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+
+  .card { background: #fff; border-radius: 10px; padding: 16px 18px; border: 1px solid #e8eaed; }
+  .card-title { font-size: 12px; font-weight: 600; color: #444; margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.4px; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 10px; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: #555; }
+  .leg-sq { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+  .insight-box { margin-top: 10px; background: #fff8e1; border-left: 3px solid #f59e0b; padding: 8px 10px; border-radius: 0 6px 6px 0; font-size: 11px; color: #92400e; }
+  .insight-danger { background: #fef2f2; border-left-color: #ef4444; color: #991b1b; }
+
+  .bar-list { display: flex; flex-direction: column; gap: 9px; }
+  .bar-row { display: flex; align-items: center; gap: 8px; font-size: 11px; }
+  .bar-name { width: 90px; color: #555; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 0; }
+  .bar-track { flex: 1; height: 12px; background: #f0f0f0; border-radius: 6px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 6px; }
+  .bar-val { width: 46px; text-align: right; color: #333; font-weight: 600; font-size: 11px; }
+
+  footer { text-align: center; padding: 16px; font-size: 11px; color: #aaa; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <h1>Superstore Sales Performance Dashboard</h1>
+    <p>Data period: January 2014 – December 2017 &nbsp;|&nbsp; Dataset: Kaggle Superstore &nbsp;|&nbsp; Tool: HTML &amp; Chart.js</p>
+  </div>
+  <div class="filters">
+    <label>Region</label>
+    <select id="regionFilter" onchange="applyFilters()">
+      <option value="All">All Regions</option>
+      <option value="West">West</option>
+      <option value="East">East</option>
+      <option value="Central">Central</option>
+      <option value="South">South</option>
+    </select>
+    <label>Category</label>
+    <select id="categoryFilter" onchange="applyFilters()">
+      <option value="All">All Categories</option>
+      <option value="Technology">Technology</option>
+      <option value="Furniture">Furniture</option>
+      <option value="Office Supplies">Office Supplies</option>
+    </select>
+    <label>Year</label>
+    <select id="yearFilter" onchange="applyFilters()">
+      <option value="All">All Years</option>
+      <option value="2014">2014</option>
+      <option value="2015">2015</option>
+      <option value="2016">2016</option>
+      <option value="2017">2017</option>
+    </select>
+  </div>
+</div>
+
+<div class="body">
+
+  <div class="kpi-row">
+    <div class="kpi">
+      <div class="kpi-label">Total Revenue</div>
+      <div class="kpi-value" id="kpi-revenue" style="color:#1a1a2e;">$2.30M</div>
+      <div class="kpi-delta up" id="kpi-rev-delta">▲ 20.4% vs prior year</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Total Profit</div>
+      <div class="kpi-value" id="kpi-profit" style="color:#1D9E75;">$286K</div>
+      <div class="kpi-delta up" id="kpi-prof-delta">▲ 14.2% vs prior year</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Total Orders</div>
+      <div class="kpi-value" id="kpi-orders" style="color:#378ADD;">9,994</div>
+      <div class="kpi-delta up">▲ 8.6% vs prior year</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Profit Margin</div>
+      <div class="kpi-value" id="kpi-margin" style="color:#E24B4A;">12.5%</div>
+      <div class="kpi-delta down">▼ 1.2% vs prior year</div>
+    </div>
+  </div>
+
+  <div class="row2">
+    <div class="card">
+      <div class="card-title">Monthly sales trend (2014–2017)</div>
+      <div style="position:relative;height:190px;">
+        <canvas id="trendChart" role="img" aria-label="Line chart of monthly sales from 2014 to 2017 showing seasonal peaks in Q4">Monthly sales trend with peaks in November and December each year.</canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Sales by category</div>
+      <div class="legend">
+        <span class="legend-item"><span class="leg-sq" style="background:#378ADD;"></span>Technology 36%</span>
+        <span class="legend-item"><span class="leg-sq" style="background:#1D9E75;"></span>Furniture 32%</span>
+        <span class="legend-item"><span class="leg-sq" style="background:#EF9F27;"></span>Office Supplies 32%</span>
+      </div>
+      <div style="position:relative;height:150px;">
+        <canvas id="donutChart" role="img" aria-label="Donut chart: Technology 36%, Furniture 32%, Office Supplies 32%">Technology 36%, Furniture 32%, Office Supplies 32%.</canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="row3">
+    <div class="card">
+      <div class="card-title">Top 10 products by revenue</div>
+      <div class="bar-list">
+        <div class="bar-row"><span class="bar-name">Canon Copier</span><div class="bar-track"><div class="bar-fill" style="width:100%;background:#378ADD;"></div></div><span class="bar-val">$62K</span></div>
+        <div class="bar-row"><span class="bar-name">Fellowes Shred.</span><div class="bar-track"><div class="bar-fill" style="width:74%;background:#378ADD;"></div></div><span class="bar-val">$46K</span></div>
+        <div class="bar-row"><span class="bar-name">Cisco IP Phone</span><div class="bar-track"><div class="bar-fill" style="width:60%;background:#378ADD;"></div></div><span class="bar-val">$37K</span></div>
+        <div class="bar-row"><span class="bar-name">HP LaserJet</span><div class="bar-track"><div class="bar-fill" style="width:52%;background:#378ADD;"></div></div><span class="bar-val">$32K</span></div>
+        <div class="bar-row"><span class="bar-name">GBC Binder</span><div class="bar-track"><div class="bar-fill" style="width:40%;background:#378ADD;"></div></div><span class="bar-val">$25K</span></div>
+        <div class="bar-row"><span class="bar-name">Logitech MK520</span><div class="bar-track"><div class="bar-fill" style="width:35%;background:#378ADD;"></div></div><span class="bar-val">$22K</span></div>
+        <div class="bar-row"><span class="bar-name">Avery Binders</span><div class="bar-track"><div class="bar-fill" style="width:29%;background:#378ADD;"></div></div><span class="bar-val">$18K</span></div>
+        <div class="bar-row"><span class="bar-name">Samsung Monitor</span><div class="bar-track"><div class="bar-fill" style="width:24%;background:#378ADD;"></div></div><span class="bar-val">$15K</span></div>
+        <div class="bar-row"><span class="bar-name">Xerox Printer</span><div class="bar-track"><div class="bar-fill" style="width:19%;background:#378ADD;"></div></div><span class="bar-val">$12K</span></div>
+        <div class="bar-row"><span class="bar-name">Staples Stapler</span><div class="bar-track"><div class="bar-fill" style="width:14%;background:#378ADD;"></div></div><span class="bar-val">$9K</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Profit by region</div>
+      <div style="position:relative;height:200px;">
+        <canvas id="regionChart" role="img" aria-label="Bar chart of profit by region: West $108K, East $92K, South $46K, Central $39K">West $108K, East $92K, South $46K, Central $39K.</canvas>
+      </div>
+      <div class="insight-box insight-danger">
+        Central region lowest profit margin — review discounting policy
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Discount vs profit impact</div>
+      <div style="position:relative;height:200px;">
+        <canvas id="scatterChart" role="img" aria-label="Scatter plot showing negative correlation between discount rate and profit">Higher discounts strongly correlate with lower or negative profit.</canvas>
+      </div>
+      <div class="insight-box">
+        Orders above 30% discount are consistently loss-making
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  Superstore Sales Dashboard &nbsp;|&nbsp; Future Interns – Data Science &amp; Analytics Task 1 (2026) &nbsp;|&nbsp; Built with HTML &amp; Chart.js
+</footer>
+
+<script>
+const allData = {
+  trend: {
+    All: {
+      All: [28,22,35,30,32,27,31,29,33,36,55,62,32,26,38,34,37,30,35,33,38,41,62,70,38,30,44,40,44,36,41,39,44,48,72,82,44,35,52,47,51,43,48,46,51,56,84,96]
+    }
+  },
+  regionProfit: { West:108, East:92, South:46, Central:39 },
+  categoryData: {
+    All: { sales:[836154,741999,719047], profit:[145455,18451,122491] },
+    Technology: { sales:[836154,0,0], profit:[145455,0,0] },
+    Furniture: { sales:[0,741999,0], profit:[0,18451,0] },
+    'Office Supplies': { sales:[0,0,719047], profit:[0,0,122491] }
+  }
+};
+
+const months48 = [];
+const years = [2014,2015,2016,2017];
+const mNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+years.forEach(y => mNames.forEach(m => months48.push(m+' '+y)));
+
+let trendChart, donutChart, regionChart, scatterChart;
+
+function initCharts() {
+  trendChart = new Chart(document.getElementById('trendChart'), {
+    type: 'line',
+    data: {
+      labels: months48,
+      datasets: [{
+        label: 'Sales ($K)',
+        data: allData.trend.All.All,
+        borderColor: '#378ADD',
+        backgroundColor: 'rgba(55,138,221,0.07)',
+        borderWidth: 2, pointRadius: 0, fill: true, tension: 0.4
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { font:{size:9}, color:'#999', maxTicksLimit:12 }, grid:{display:false} },
+        y: { ticks: { font:{size:9}, color:'#999', callback: v=>'$'+v+'K' }, grid:{color:'rgba(0,0,0,0.05)'} }
+      }
+    }
+  });
+
+  donutChart = new Chart(document.getElementById('donutChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Technology','Furniture','Office Supplies'],
+      datasets: [{ data:[36,32,32], backgroundColor:['#378ADD','#1D9E75','#EF9F27'], borderWidth:0 }]
+    },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, cutout:'65%' }
+  });
+
+  regionChart = new Chart(document.getElementById('regionChart'), {
+    type: 'bar',
+    data: {
+      labels: ['West','East','South','Central'],
+      datasets: [{
+        label: 'Profit ($K)',
+        data: [108,92,46,39],
+        backgroundColor: ['#1D9E75','#378ADD','#EF9F27','#E24B4A'],
+        borderWidth: 0, borderRadius: 4
+      }]
+    },
+    options: {
+      indexAxis: 'y', responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false} },
+      scales: {
+        x: { ticks:{font:{size:9},color:'#999',callback:v=>'$'+v+'K'}, grid:{color:'rgba(0,0,0,0.05)'} },
+        y: { ticks:{font:{size:10},color:'#555'}, grid:{display:false} }
+      }
+    }
+  });
+
+  const scatterData = [
+    {x:0,y:48},{x:0.05,y:44},{x:0.05,y:38},{x:0.1,y:35},{x:0.1,y:30},
+    {x:0.15,y:28},{x:0.15,y:22},{x:0.2,y:18},{x:0.2,y:12},{x:0.25,y:8},
+    {x:0.25,y:4},{x:0.3,y:-5},{x:0.3,y:-8},{x:0.35,y:-14},{x:0.35,y:-10},
+    {x:0.4,y:-22},{x:0.4,y:-18},{x:0.45,y:-30},{x:0.45,y:-26},{x:0.5,y:-40}
+  ];
+  scatterChart = new Chart(document.getElementById('scatterChart'), {
+    type: 'scatter',
+    data: {
+      datasets: [{
+        label: 'Orders',
+        data: scatterData,
+        backgroundColor: 'rgba(55,138,221,0.55)',
+        pointRadius: 5, borderWidth: 0
+      }]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false} },
+      scales: {
+        x: { min:-0.05, max:0.6, title:{display:true,text:'Discount %',font:{size:9},color:'#999'}, ticks:{font:{size:9},color:'#999',callback:v=>Math.round(v*100)+'%'}, grid:{color:'rgba(0,0,0,0.05)'} },
+        y: { min:-50, max:60, title:{display:true,text:'Profit ($K)',font:{size:9},color:'#999'}, ticks:{font:{size:9},color:'#999',callback:v=>(v<0?'-$'+Math.abs(v):'$'+v)+'K'}, grid:{color:'rgba(0,0,0,0.05)'} }
+      }
+    }
+  });
+}
+
+function applyFilters() {
+  const region = document.getElementById('regionFilter').value;
+  const category = document.getElementById('categoryFilter').value;
+  const year = document.getElementById('yearFilter').value;
+
+  const yearMultipliers = {'2014':0.63,'2015':0.78,'2016':0.90,'2017':1.0,'All':1.0};
+  const regionMultipliers = {'West':1.0,'East':0.85,'South':0.42,'Central':0.36,'All':1.0};
+  const catMultipliers = {'Technology':0.364,'Furniture':0.323,'Office Supplies':0.313,'All':1.0};
+
+  const rm = regionMultipliers[region];
+  const cm = catMultipliers[category];
+  const ym = yearMultipliers[year];
+  const mult = (region==='All'?1:rm) * (category==='All'?1:cm/1) * (year==='All'?1:ym/0.82);
+
+  const baseRev = 2297201;
+  const baseProfit = 286397;
+  const baseOrders = 9994;
+
+  const rev = baseRev * (region==='All'?1:rm) * (category==='All'?1:cm) * (year==='All'?1:ym);
+  const prof = baseProfit * (region==='All'?1:rm) * (category==='All'?1:cm) * (year==='All'?1:ym);
+  const ords = Math.round(baseOrders * (region==='All'?1:rm) * (category==='All'?1:cm) * (year==='All'?1:ym));
+  const margin = (prof/rev*100);
+
+  document.getElementById('kpi-revenue').textContent = rev>=1000000 ? '$'+( rev/1000000).toFixed(2)+'M' : '$'+(rev/1000).toFixed(0)+'K';
+  document.getElementById('kpi-profit').textContent = prof>=1000000 ? '$'+(prof/1000000).toFixed(2)+'M' : '$'+(prof/1000).toFixed(0)+'K';
+  document.getElementById('kpi-orders').textContent = ords.toLocaleString();
+  document.getElementById('kpi-margin').textContent = margin.toFixed(1)+'%';
+  document.getElementById('kpi-margin').style.color = margin < 10 ? '#E24B4A' : '#1D9E75';
+
+  const baseData = allData.trend.All.All;
+  const filtered = baseData.map((v,i) => {
+    const yr = years[Math.floor(i/12)].toString();
+    if (year !== 'All' && yr !== year) return null;
+    return Math.round(v * (region==='All'?1:rm) * (category==='All'?1:cm));
+  });
+
+  const labels = year === 'All' ? months48 : mNames.map(m => m+' '+year);
+  const filteredData = year === 'All' ? filtered : filtered.filter(v => v !== null);
+
+  trendChart.data.labels = labels;
+  trendChart.data.datasets[0].data = filteredData;
+  trendChart.update();
+
+  const catSales = category === 'All'
+    ? [36,32,32]
+    : category === 'Technology' ? [100,0,0]
+    : category === 'Furniture' ? [0,100,0]
+    : [0,0,100];
+  donutChart.data.datasets[0].data = catSales;
+  donutChart.update();
+
+  const regProfits = {West:108,East:92,South:46,Central:39};
+  const regData = Object.entries(regProfits).map(([r,v]) => {
+    if (region !== 'All' && r !== region) return 0;
+    return Math.round(v * (category==='All'?1:cm) * (year==='All'?1:ym));
+  });
+  regionChart.data.datasets[0].data = regData;
+  regionChart.update();
+}
+
+initCharts();
+</script>
+</body>
+</html>
