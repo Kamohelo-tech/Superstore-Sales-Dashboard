@@ -77,7 +77,7 @@ The top five products by revenue are dominated by technology hardware printers, 
 
 ## 7. Discount vs. Profit Analysis
 
-A clear negative correlation exists between discount rate and profit. Orders with discounts above **30%** consistently result in **negative profit** — meaning the business is losing money on those transactions. At a 40% discount, the average profit per order is approximately **-$22**.
+A clear negative correlation exists between discount rate and profit. Orders with discounts above **30%** consistently result in **negative profit** meaning the business is losing money on those transactions. At a 40% discount, the average profit per order is approximately **-$22**.
 
 This is one of the most important findings in this analysis. A large number of orders in the dataset fall into the loss-making discount range, meaning the business is effectively paying customers to buy products.
 
