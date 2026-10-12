@@ -45,7 +45,7 @@ The steepest month-on-month growth occurred between October and November, sugges
 | Furniture | $741,999 | $18,451 | 2.5% |
 | Office Supplies | $719,047 | $122,491 | 17.0% |
 
-Technology is the highest-revenue and most profitable category, generating **$836K** in sales and a **17.4%** margin. Office Supplies follows closely with a similar margin. Furniture is a major concern — despite generating **$742K** in sales, it delivers only a **2.5%** profit margin, suggesting significant margin erosion from discounts or high costs of goods.
+Technology is the highest-revenue and most profitable category, generating **$836K** in sales and a **17.4%** margin. Office Supplies follows closely with a similar margin. Furniture is a major concern despite generating **$742K** in sales, it delivers only a **2.5%** profit margin, suggesting significant margin erosion from discounts or high costs of goods.
 
 **Recommendation:** Review the Furniture category pricing strategy immediately. Either reduce discounts, renegotiate supplier costs, or discontinue low-margin furniture lines.
 
@@ -63,7 +63,7 @@ The Central region's low profitability relative to its sales volume is a red fla
 
 ## 6. Top-Selling Products
 
-The top five products by revenue are dominated by technology hardware — printers, copiers, and phones. The **Canon ImageClass Copier** alone generated **$62K** in revenue, making it the single highest-revenue product in the dataset.
+The top five products by revenue are dominated by technology hardware printers, copiers, and phones. The **Canon ImageClass Copier** alone generated **$62K** in revenue, making it the single highest-revenue product in the dataset.
 
 | **Product** | **Revenue** | **Category** |
 |---|---|---|
