@@ -113,4 +113,4 @@ This is one of the most important findings in this analysis. A large number of o
 
 ---
 
-*Future Interns — Data Science & Analytics Task 1 (2026) | Superstore Sales Analysis*
+*Future Interns - Data Science & Analytics Task 1 (2026) | Superstore Sales Analysis*
