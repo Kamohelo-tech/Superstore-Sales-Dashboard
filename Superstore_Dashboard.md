@@ -5,7 +5,7 @@
 - **Data Period:** January 2014 - December 2017
 - **Tools Used:** Microsoft Excel | Power BI Desktop
 - **Dataset:** Superstore Sales Dataset (Kaggle)
-- **Prepared for:** Future Interns — Data Science & Analytics Task 1 (2026)
+- **Prepared for:** Future Interns - Data Science & Analytics Task 1 (2026)
 
 ---
 
